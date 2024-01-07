@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 
 import edit from "../svgs/edit.svg";
 import deleteIcon from "../svgs/delete.svg";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { getForm } from "../utils/helperFunctions";
 
 enum InputType {
   text = "text",
@@ -23,7 +24,8 @@ interface FormObj {
   allInputs: InputObj[];
 }
 
-const CreateForm = () => {
+const EditForm = () => {
+  const params = useParams();
   const navigate = useNavigate();
   const [title, setTitle] = useState("Untitled Form");
   const [isTitleEditButtonClicked, setIsTitleEditButtonClicked] =
@@ -60,33 +62,35 @@ const CreateForm = () => {
       allInputs: showAllInputs,
     };
 
-    const existingFormIndex = form.findIndex(
-      (formObj: any) => formObj.formTitle === title
-    );
+    // const existingFormIndex = form.findIndex(
+    //   (formObj: any) => formObj.formTitle === title
+    // );
 
-    if (existingFormIndex !== -1) {
-      setForm((prev: any) => {
-        const updatedForm = [...prev];
-        updatedForm[existingFormIndex] = { ...allFormInputs };
-        return updatedForm;
-      });
-    } else {
-      setForm((prev: any) => [...prev, { ...allFormInputs }]);
-    }
+    // if (existingFormIndex !== -1) {
+    //   setForm((prev: any) => {
+    //     const updatedForm = [...prev];
+    //     updatedForm[existingFormIndex] = { ...allFormInputs };
+    //     return updatedForm;
+    //   });
+    // } else {
+    //   setForm((prev: any) => [...prev, { ...allFormInputs }]);
+    // }
+    // setForm({ ...allFormInputs });
 
+    setForm([{ ...allFormInputs }]);
     setShowAllInputs([]);
   };
 
   const uploadForm = async () => {
     const options = {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(form),
     };
 
-    const response = await fetch("http://localhost:8000/form/upload", options);
+    const response = await fetch("http://localhost:8000/form/update", options);
     console.log(response);
 
     if (response.ok) {
@@ -96,11 +100,41 @@ const CreateForm = () => {
     }
   };
 
+  const onClickDeleteButton = (type: string) => {
+    const filteredInputs = showAllInputs.filter(
+      (each: InputObj) => each.type !== type
+    );
+    console.log(filteredInputs);
+    setShowAllInputs([...filteredInputs]);
+  };
+
+  console.log(showAllInputs);
+  const id = params.id?.toString() as string;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const form = await getForm(id);
+
+        if (form) {
+          setForm(form[0]);
+          setTitle(form[0].formTitle);
+          setShowAllInputs(form[0].allInputs);
+        }
+        // console.log("form", form);
+      } catch (error: any) {
+        console.error("Error fetching form:", error.message);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  console.log(form);
   return (
     <div className=" h-screen p-5 flex flex-col justify-start items-center ">
       <div className=" flex flex-col justify-start items-center">
         <div className="flex flex-col justify-center items-center">
-          <h1 className="text-3xl mt-10 "> Create New Form</h1>
+          <h1 className="text-3xl mt-10 "> Edit Form</h1>
         </div>
       </div>
       <div id="formContainer" className="flex justify-center mt-10 w-full">
@@ -151,7 +185,10 @@ const CreateForm = () => {
                       <img src={edit} alt="edit" />
                     </button>
 
-                    <button className="mr-5 mt-5">
+                    <button
+                      className="mr-5 mt-5"
+                      onClick={() => onClickDeleteButton(eachObj.type)}
+                    >
                       <img src={deleteIcon} alt="edit" />
                     </button>
                   </div>
@@ -251,8 +288,10 @@ const CreateForm = () => {
                 />
                 <label
                   htmlFor="title"
-                  className={`absolute left-0 top-0 ${
-                    title ? "text-xs text-purple-600 -translate-y-4" : "text-xl"
+                  className={`absolute left-0 top-1 ${
+                    title
+                      ? "text-gray-600 cursor-text -top-4 text-xs text-purple-600"
+                      : "text-xl"
                   } transition-all`}
                 >
                   Title
@@ -267,6 +306,7 @@ const CreateForm = () => {
                     type="text"
                     id={currentType}
                     name={currentType}
+                    // value={currentObj.title} // Assuming you have a state variable 'title' for the input value
                     onChange={(e) => {
                       setInputValue(e.target.value);
                       setCurrentObj({
@@ -293,12 +333,12 @@ const CreateForm = () => {
                     Title
                   </label>
                 </div>
-
                 <div className="relative mt-10">
                   <input
                     type="text"
                     id={currentType}
                     name={currentType}
+                    // value={currentObj.placeholder} // Assuming you have a state variable 'placeholder' for the input value
                     onChange={(e) => {
                       setPlaceholderValue(e.target.value);
                       setCurrentObj({
@@ -307,7 +347,7 @@ const CreateForm = () => {
                       });
                     }}
                     onBlur={() => {
-                      if (!placeholderValue) {
+                      if (!inputValue) {
                         // If the input is empty, move the label back to its original position
                         setPlaceholderValue("");
                       }
@@ -325,7 +365,6 @@ const CreateForm = () => {
                     Placeholder
                   </label>
                 </div>
-
                 <button
                   className="border-2 mt-5 p-2 rounded-lg bg-green-500 text-white"
                   onClick={() => {
@@ -367,11 +406,11 @@ const CreateForm = () => {
           type="button"
           onClick={uploadForm}
         >
-          CREATE FORM
+          SAVE FORM
         </button>
       </div>
     </div>
   );
 };
 
-export default CreateForm;
+export default EditForm;
