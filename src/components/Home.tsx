@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllForms } from "../utils/api";
+import { getAllForms, onClickDeleteButton } from "../utils/api";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -20,26 +20,6 @@ const Home = () => {
 
     fetchData();
   }, []);
-
-  const onClickDeleteButton = async (id: string) => {
-    const newId = id.toString();
-    const options = {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: newId }),
-    };
-
-    const response = await fetch("http://localhost:8000/form/delete", options);
-
-    if (response.ok) {
-      const data = await response.json();
-
-      alert(data.message);
-      window.location.reload();
-    }
-  };
 
   return (
     <div className=" h-screen p-5">

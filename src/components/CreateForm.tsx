@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 
-import edit from "../svgs/edit.svg";
-import deleteIcon from "../svgs/delete.svg";
 import { useNavigate } from "react-router-dom";
 import { FormObj, InputObj, InputType } from "../utils/types";
+import ShowInput from "./ShowInput";
+import ShowTitle from "./ShowTitle";
+import ShowAllInputButtons from "./ShowAllInputButtons";
+import AddInputTitleAndPlaceholder from "./AddInputTitleAndPlaceholder";
+import AddNameToForm from "./AddNameToForm";
 
 const CreateForm = () => {
   const navigate = useNavigate();
@@ -19,21 +22,6 @@ const CreateForm = () => {
   const [currentType, setCurrentType] = useState("text");
 
   const [form, setForm] = useState<FormObj[]>([]);
-
-  function showInput(type: InputType, title: string, placeholder: string) {
-    setShowAllInputs((prev) => [...prev, { type, title, placeholder }]);
-  }
-
-  function onClickEditButton(type: string) {
-    setIsTitleEditButtonClicked(false);
-    setCurrentType(type);
-    setInputButtonClicked(!inputButtonClicked);
-    const filteredTypeObj = showAllInputs.filter(
-      (each: InputObj) => each.type === type
-    );
-
-    setCurrentObj(filteredTypeObj[0]);
-  }
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -71,7 +59,7 @@ const CreateForm = () => {
     const response = await fetch("http://localhost:8000/form/upload", options);
 
     if (response.ok) {
-      const data = await response.json();
+      await response.json();
 
       navigate("/");
     }
@@ -90,52 +78,25 @@ const CreateForm = () => {
           onSubmit={handleSubmit}
           className="border-2 p-5 flex flex-col justify-center items-center w-[70%]"
         >
-          <h1 className="text-3xl font-semibold mb-10 ">
-            {title}
-            <span>
-              {" "}
-              <button
-                type="button"
-                className="mr-5 mt-5"
-                onClick={() =>
-                  setIsTitleEditButtonClicked(!isTitleEditButtonClicked)
-                }
-              >
-                <img src={edit} alt="edit" />
-              </button>
-            </span>
-          </h1>
+          <ShowTitle
+            title={title}
+            isTitleEditButtonClicked={isTitleEditButtonClicked}
+            setIsTitleEditButtonClicked={setIsTitleEditButtonClicked}
+          />
           <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 p-2 mb-5">
               {showAllInputs.length > 0 &&
                 showAllInputs.map((eachObj: InputObj) => (
-                  <div
-                    key={eachObj.type}
-                    className="flex justify-center items-center  shadow-md  p-2 mb-5"
-                  >
-                    <div className="relative mr-2 mt-5 ml-2">
-                      <input
-                        type="text"
-                        id={eachObj.type}
-                        name={eachObj.title}
-                        value={eachObj.title}
-                        readOnly
-                        className="border-b-2 py-1 focus:outline-none"
-                        placeholder={eachObj.title}
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      className="mr-5 mt-5"
-                      onClick={() => onClickEditButton(eachObj.type)}
-                    >
-                      <img src={edit} alt="edit" />
-                    </button>
-
-                    <button className="mr-5 mt-5">
-                      <img src={deleteIcon} alt="edit" />
-                    </button>
-                  </div>
+                  <ShowInput
+                    eachObj={eachObj}
+                    setIsTitleEditButtonClicked={setIsTitleEditButtonClicked}
+                    setCurrentType={setCurrentType}
+                    setInputButtonClicked={setInputButtonClicked}
+                    inputButtonClicked={inputButtonClicked}
+                    showAllInputs={showAllInputs}
+                    setCurrentObj={setCurrentObj}
+                    setShowAllInputs={setShowAllInputs}
+                  />
                 ))}
             </div>
           </div>
@@ -148,53 +109,7 @@ const CreateForm = () => {
             {isAddInputButtonClicked ? "CLOSE ADD INPUT" : "ADD INPUT"}
           </button>
           {isAddInputButtonClicked && (
-            <div className="flex mt-10  ">
-              <button
-                type="button"
-                onClick={() =>
-                  showInput(InputType.text, "title", "placeholder")
-                }
-                className="border-2  mr-2 p-2 rounded-lg  bg-blue-500 text-white font-semibold cursor-pointer"
-              >
-                TEXT
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  showInput(InputType.number, "title", "placeholder")
-                }
-                className="border-2  mr-2 p-2 rounded-lg  bg-blue-500 text-white font-semibold cursor-pointer"
-              >
-                NUMBER
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  showInput(InputType.email, "title", "placeholder")
-                }
-                className="border-2  mr-2 p-2 rounded-lg  bg-blue-500 text-white font-semibold cursor-pointer"
-              >
-                EMAIL
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  showInput(InputType.password, "title", "placeholder")
-                }
-                className="border-2  mr-2 p-2 rounded-lg  bg-blue-500 text-white font-semibold cursor-pointer"
-              >
-                PASSWORD
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  showInput(InputType.date, "title", "placeholder")
-                }
-                className="border-2  mr-2 p-2 rounded-lg  bg-blue-500 text-white font-semibold cursor-pointer"
-              >
-                DATE
-              </button>
-            </div>
+            <ShowAllInputButtons setShowAllInputs={setShowAllInputs} />
           )}
 
           <button
@@ -215,124 +130,21 @@ const CreateForm = () => {
           <div id="dynamicInputs " className="flex flex-col mt-2">
             {/* need to show when user clicks on button  */}
             {isTitleEditButtonClicked && (
-              <div className="relative mt-10">
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  value={title} // Assuming you have a state variable 'title' for the input value
-                  onChange={(e) => setTitle(e.target.value)}
-                  onBlur={() => {
-                    if (!title) {
-                      // If the input is empty, move the label back to its original position
-                      setTitle("");
-                    }
-                  }}
-                  className="border-b-2 py-1 focus:outline-none focus:border-purple-600 focus:border-b-2 transition-colors peer"
-                />
-                <label
-                  htmlFor="title"
-                  className={`absolute left-0 top-0 ${
-                    title ? "text-xs text-purple-600 -translate-y-4" : "text-xl"
-                  } transition-all`}
-                >
-                  Title
-                </label>
-              </div>
+              <AddNameToForm title={title} setTitle={setTitle} />
             )}
 
             {inputButtonClicked && (
-              <>
-                <div className="relative mt-10">
-                  <input
-                    type="text"
-                    id={currentType}
-                    name={currentType}
-                    onChange={(e) => {
-                      setInputValue(e.target.value);
-                      setCurrentObj({
-                        ...currentObj,
-                        title: e.target.value,
-                      });
-                    }}
-                    onBlur={() => {
-                      if (!inputValue) {
-                        // If the input is empty, move the label back to its original position
-                        setInputValue("");
-                      }
-                    }}
-                    className="border-b-2 py-1 focus:outline-none focus:border-purple-600 focus:border-b-2 transition-colors peer"
-                  />
-                  <label
-                    htmlFor={currentType}
-                    className={`absolute left-0 top-0 ${
-                      inputValue
-                        ? "text-xs text-purple-600 -translate-y-4"
-                        : "text-xl"
-                    } transition-all`}
-                  >
-                    Title
-                  </label>
-                </div>
-
-                <div className="relative mt-10">
-                  <input
-                    type="text"
-                    id={currentType}
-                    name={currentType}
-                    onChange={(e) => {
-                      setPlaceholderValue(e.target.value);
-                      setCurrentObj({
-                        ...currentObj,
-                        placeholder: e.target.value,
-                      });
-                    }}
-                    onBlur={() => {
-                      if (!placeholderValue) {
-                        // If the input is empty, move the label back to its original position
-                        setPlaceholderValue("");
-                      }
-                    }}
-                    className="border-b-2 py-1 focus:outline-none focus:border-purple-600 focus:border-b-2 transition-colors peer"
-                  />
-                  <label
-                    htmlFor={currentType}
-                    className={`absolute left-0 top-0 ${
-                      placeholderValue
-                        ? "text-xs text-purple-600 -translate-y-4"
-                        : "text-xl"
-                    } transition-all`}
-                  >
-                    Placeholder
-                  </label>
-                </div>
-
-                <button
-                  className="border-2 mt-5 p-2 rounded-lg bg-green-500 text-white"
-                  onClick={() => {
-                    setCurrentObj({
-                      ...currentObj,
-                      type: currentType,
-                      title: inputValue,
-                      placeholder: placeholderValue,
-                    });
-
-                    setInputButtonClicked((prev) => !prev);
-
-                    setShowAllInputs((prev) => {
-                      return prev.map((input) =>
-                        input.type === currentType
-                          ? { ...input, ...currentObj }
-                          : input
-                      );
-                    });
-                    setInputValue("");
-                    setPlaceholderValue("");
-                  }}
-                >
-                  Done
-                </button>
-              </>
+              <AddInputTitleAndPlaceholder
+                currentType={currentType}
+                setInputValue={setInputValue}
+                setCurrentObj={setCurrentObj}
+                currentObj={currentObj}
+                inputValue={inputValue}
+                setPlaceholderValue={setPlaceholderValue}
+                placeholderValue={placeholderValue}
+                setInputButtonClicked={setInputButtonClicked}
+                setShowAllInputs={setShowAllInputs}
+              />
             )}
           </div>
         </div>

@@ -33,3 +33,23 @@ export const getForm = async (id: string) => {
     return data.form;
   }
 };
+
+export const onClickDeleteButton = async (id: string) => {
+  const newId = id.toString();
+  const options = {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id: newId }),
+  };
+
+  const response = await fetch("http://localhost:8000/form/delete", options);
+
+  if (response.ok) {
+    const data = await response.json();
+
+    alert(data.message);
+    window.location.reload();
+  }
+};
