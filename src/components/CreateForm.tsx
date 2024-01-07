@@ -3,25 +3,7 @@ import React, { useEffect, useState } from "react";
 import edit from "../svgs/edit.svg";
 import deleteIcon from "../svgs/delete.svg";
 import { useNavigate } from "react-router-dom";
-
-enum InputType {
-  text = "text",
-  number = "number",
-  email = "email",
-  password = "password",
-  date = "date",
-}
-
-interface InputObj {
-  type: InputType;
-  title: string;
-  placeholder: string;
-}
-
-interface FormObj {
-  formTitle: string;
-  allInputs: InputObj[];
-}
+import { FormObj, InputObj, InputType } from "../utils/types";
 
 const CreateForm = () => {
   const navigate = useNavigate();
@@ -49,7 +31,7 @@ const CreateForm = () => {
     const filteredTypeObj = showAllInputs.filter(
       (each: InputObj) => each.type === type
     );
-    console.log(filteredTypeObj);
+
     setCurrentObj(filteredTypeObj[0]);
   }
 
@@ -87,11 +69,10 @@ const CreateForm = () => {
     };
 
     const response = await fetch("http://localhost:8000/form/upload", options);
-    console.log(response);
 
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
+
       navigate("/");
     }
   };
@@ -329,21 +310,16 @@ const CreateForm = () => {
                 <button
                   className="border-2 mt-5 p-2 rounded-lg bg-green-500 text-white"
                   onClick={() => {
-                    // console.log("Before update", showAllInputs);
-                    // console.log("before Current Obj", currentObj);
-
                     setCurrentObj({
                       ...currentObj,
                       type: currentType,
                       title: inputValue,
                       placeholder: placeholderValue,
                     });
-                    console.log("After Current Obj", currentObj);
 
                     setInputButtonClicked((prev) => !prev);
 
                     setShowAllInputs((prev) => {
-                      // console.log("Prev state", prev)
                       return prev.map((input) =>
                         input.type === currentType
                           ? { ...input, ...currentObj }

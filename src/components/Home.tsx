@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllForms } from "../utils/helperFunctions";
+import { getAllForms } from "../utils/api";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -13,7 +13,6 @@ const Home = () => {
         if (forms) {
           setShowAllForms(forms);
         }
-        // console.log("forms", forms);
       } catch (error: any) {
         console.error("Error fetching forms:", error.message);
       }
@@ -34,17 +33,14 @@ const Home = () => {
 
     const response = await fetch("http://localhost:8000/form/delete", options);
 
-    console.log("response", response);
-
     if (response.ok) {
       const data = await response.json();
-      console.log("data", data);
+
       alert(data.message);
       window.location.reload();
     }
   };
 
-  console.log("showAllForms", showAllForms);
   return (
     <div className=" h-screen p-5">
       <div className=" flex flex-col justify-start items-center">

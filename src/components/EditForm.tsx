@@ -3,26 +3,8 @@ import React, { useEffect, useState } from "react";
 import edit from "../svgs/edit.svg";
 import deleteIcon from "../svgs/delete.svg";
 import { useNavigate, useParams } from "react-router-dom";
-import { getForm } from "../utils/helperFunctions";
-
-enum InputType {
-  text = "text",
-  number = "number",
-  email = "email",
-  password = "password",
-  date = "date",
-}
-
-interface InputObj {
-  type: InputType;
-  title: string;
-  placeholder: string;
-}
-
-interface FormObj {
-  formTitle: string;
-  allInputs: InputObj[];
-}
+import { getForm } from "../utils/api";
+import { FormObj, InputObj, InputType } from "../utils/types";
 
 const EditForm = () => {
   const params = useParams();
@@ -51,7 +33,7 @@ const EditForm = () => {
     const filteredTypeObj = showAllInputs.filter(
       (each: InputObj) => each.type === type
     );
-    console.log(filteredTypeObj);
+
     setCurrentObj(filteredTypeObj[0]);
   }
 
@@ -61,21 +43,6 @@ const EditForm = () => {
       formTitle: title,
       allInputs: showAllInputs,
     };
-
-    // const existingFormIndex = form.findIndex(
-    //   (formObj: any) => formObj.formTitle === title
-    // );
-
-    // if (existingFormIndex !== -1) {
-    //   setForm((prev: any) => {
-    //     const updatedForm = [...prev];
-    //     updatedForm[existingFormIndex] = { ...allFormInputs };
-    //     return updatedForm;
-    //   });
-    // } else {
-    //   setForm((prev: any) => [...prev, { ...allFormInputs }]);
-    // }
-    // setForm({ ...allFormInputs });
 
     setForm([{ ...allFormInputs }]);
     setShowAllInputs([]);
@@ -91,11 +58,10 @@ const EditForm = () => {
     };
 
     const response = await fetch("http://localhost:8000/form/update", options);
-    console.log(response);
 
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
+
       navigate("/");
     }
   };
@@ -104,11 +70,10 @@ const EditForm = () => {
     const filteredInputs = showAllInputs.filter(
       (each: InputObj) => each.type !== type
     );
-    console.log(filteredInputs);
+
     setShowAllInputs([...filteredInputs]);
   };
 
-  console.log(showAllInputs);
   const id = params.id?.toString() as string;
   useEffect(() => {
     const fetchData = async () => {
@@ -120,7 +85,6 @@ const EditForm = () => {
           setTitle(form[0].formTitle);
           setShowAllInputs(form[0].allInputs);
         }
-        // console.log("form", form);
       } catch (error: any) {
         console.error("Error fetching form:", error.message);
       }
@@ -129,7 +93,6 @@ const EditForm = () => {
     fetchData();
   }, []);
 
-  console.log(form);
   return (
     <div className=" h-screen p-5 flex flex-col justify-start items-center ">
       <div className=" flex flex-col justify-start items-center">
@@ -368,21 +331,16 @@ const EditForm = () => {
                 <button
                   className="border-2 mt-5 p-2 rounded-lg bg-green-500 text-white"
                   onClick={() => {
-                    // console.log("Before update", showAllInputs);
-                    // console.log("before Current Obj", currentObj);
-
                     setCurrentObj({
                       ...currentObj,
                       type: currentType,
                       title: inputValue,
                       placeholder: placeholderValue,
                     });
-                    console.log("After Current Obj", currentObj);
 
                     setInputButtonClicked((prev) => !prev);
 
                     setShowAllInputs((prev) => {
-                      // console.log("Prev state", prev)
                       return prev.map((input) =>
                         input.type === currentType
                           ? { ...input, ...currentObj }

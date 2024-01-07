@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import "../App.css";
 import { useParams } from "react-router-dom";
 import { title } from "process";
-import { getForm } from "../utils/helperFunctions";
+import { getForm } from "../utils/api";
 
 interface formSubmit {
   [key: string]: string | number | Date;
@@ -15,6 +15,7 @@ const ViewForm = () => {
   const [formSubmit, setFormSubmit] = useState<formSubmit>({});
 
   const id = params.id?.toString() as string;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -22,7 +23,6 @@ const ViewForm = () => {
         if (form) {
           setForm(form);
         }
-        // console.log("form", form);
       } catch (error: any) {
         console.error("Error fetching form:", error.message);
       }
@@ -37,7 +37,6 @@ const ViewForm = () => {
     console.log(formSubmit);
   };
 
-  // console.log("view form", form);
   return (
     <div className="flex justify-center items-center">
       <div className="flex justify-center items-center flex-col mt-20 border-2 w-[75%]">
@@ -62,7 +61,6 @@ const ViewForm = () => {
                     name={each.title}
                     placeholder={each.placeholder}
                     required
-                    // value={currentObj.title} // Assuming you have a state variable 'title' for the input value
                     onChange={(e) => {
                       setFormSubmit((prev) => ({
                         ...prev,

@@ -1,3 +1,4 @@
+const BASE_URL = process.env.BASE_URL;
 export async function getAllForms() {
   const options = {
     method: "GET",
@@ -5,14 +6,11 @@ export async function getAllForms() {
       "Content-Type": "application/json",
     },
   };
-  const response = await fetch(
-    "http://localhost:8000/form/getAllForms",
-    options
-  );
-  console.log({ response });
+  const response = await fetch(`${BASE_URL}/form/getAllForms`, options);
+
   if (response.ok) {
     const data = await response.json();
-    // console.log("forms", data);
+
     return data.forms;
   }
 }
@@ -25,13 +23,12 @@ export const getForm = async (id: string) => {
     },
     body: JSON.stringify({ id }),
   };
-  // console.log(options);
 
-  const response = await fetch("http://localhost:8000/form/getForm", options);
-  // console.log({ response });
+  const response = await fetch(`${BASE_URL}/form/getForm`, options);
+
   if (response.ok) {
     const data = await response.json();
-    // console.log("forms", data);
+
     return data.form;
   }
 };
