@@ -112,7 +112,8 @@ const EditForm = () => {
               {" "}
               <button
                 type="button"
-                className="mr-5 mt-5"
+                className="mr-5 mt-5 cursor-not-allowed "
+                disabled
                 onClick={() =>
                   setIsTitleEditButtonClicked(!isTitleEditButtonClicked)
                 }
@@ -251,10 +252,8 @@ const EditForm = () => {
                 />
                 <label
                   htmlFor="title"
-                  className={`absolute left-0 top-1 ${
-                    title
-                      ? "text-gray-600 cursor-text -top-4 text-xs text-purple-600"
-                      : "text-xl"
+                  className={`absolute left-0 top-0 ${
+                    title ? "text-xs text-purple-600 -translate-y-4" : "text-xl"
                   } transition-all`}
                 >
                   Title
